@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - User Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+        }
+
+        .user-list {
+            margin-top: 30px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .user-info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: black;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success-message {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+            
+            .user-info-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <h2> Admin Login</h2>
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-login">Login</button>
+            <div id="loginMessage"></div>
+        </form>
+    </div>
+
+    <!-- Main Admin Panel (Hidden until login) -->
+    <div id="adminPanel" class="hidden">
+        <div class="container">
+            <div class="header">
+                <div>
+                    <h1> Admin Management Panel</h1>
+                    <p>User Authentication & License Management System</p>
+                </div>
+                <div class="user-info">
+                    <span>Welcome, <strong id="currentUser">Admin</strong></span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div>Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div>Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="expiredUsers">0</div>
+                    <div>Expired Licenses</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2> Add New User</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="userKey">User Key:</label>
+                        <input type="text" id="userKey" placeholder="Enter user key" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deviceId">Device ID:</label>
+                        <input type="text" id="deviceId" placeholder="Auto-generated" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date:</label>
+                        <input type="date" id="expiryDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">Add User</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder=" Search users...">
+                </div>
+                
+                <h2> User List</h2>
+                <div class="user-list" id="userList">
+                    <!-- User cards will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin credentials (In real application, this should be on server side)
+        const ADMIN_CREDENTIALS = [
+            { username: "Dark", password: "Papel", name: "SuperAdmin" },
+            { username: "Moderator", password: "Admin", name: "Moderator" }
+        ];
+
+        // Sample initial data
+        let users = [
+            {
+                id: 1,
+                userKey: "USER001",
+                deviceId: "ANDROID-123456",
+                expiryDate: "2024-12-31",
+                status: "active",
+                createdBy: "admin",
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 2,
+                userKey: "USER002", 
+                deviceId: "ANDROID-789012",
+                expiryDate: "2024-06-15",
+                status: "inactive",
+                createdBy: "admin",
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        let currentAdmin = null;
+        let sessionTimeout = null;
+
+        // DOM elements
+        const loginSection = document.getElementById('loginSection');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const userForm = document.getElementById('userForm');
+        const userList = document.getElementById('userList');
+        const searchInput = document.getElementById('searchInput');
+        const totalUsers = document.getElementById('totalUsers');
+        const activeUsers = document.getElementById('activeUsers');
+        const expiredUsers = document.getElementById('expiredUsers');
+        const currentUserElement = document.getElementById('currentUser');
+        const loginMessage = document.getElementById('loginMessage');
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedSession = localStorage.getItem('adminSession');
+            if (savedSession) {
+                const session = JSON.parse(savedSession);
+                if (session.expires > Date.now()) {
+                    loginSuccess(session.user);
+                } else {
+                    localStorage.removeItem('adminSession');
+                }
+            }
+            
+            // Generate random device ID
+            document.getElementById('deviceId').value = 'ANDROID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        });
+
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const admin = ADMIN_CREDENTIALS.find(acc => 
+                acc.username === username && acc.password === password
+            );
+            
+            if (admin) {
+                loginSuccess(admin);
+            } else {
+                showMessage('Invalid username or password!', 'error');
+            }
+        });
+
+        // User form submission
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentAdmin) {
+                showMessage('Please login first!', 'error');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                userKey: document.getElementById('userKey').value,
+                deviceId: document.getElementById('deviceId').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                status: document.getElementById('status').value,
+                createdBy: currentAdmin.username,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            renderUsers();
+            updateStats();
+            userForm.reset();
+            
+            // Regenerate device ID
+            document.getElementById('deviceId').value = 'ANDROID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            
+            showMessage('User added successfully!', 'success');
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            renderUsers(this.value.toLowerCase());
+        });
+
+        // Login success function
+        function loginSuccess(admin) {
+            currentAdmin = admin;
+            currentUserElement.textContent = admin.name;
+            
+            // Create session (1 hour expiry)
+            const session = {
+                user: admin,
+                expires: Date.now() + (60 * 60 * 1000) // 1 hour
+            };
+            localStorage.setItem('adminSession', JSON.stringify(session));
+            
+            // Set session timeout
+            resetSessionTimeout();
+            
+            // Show admin panel
+            loginSection.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            
+            // Initialize admin panel
+            renderUsers();
+            updateStats();
+            
+            showMessage(`Welcome back, ${admin.name}!`, 'success');
+        }
+
+        // Logout function
+        function logout() {
+            currentAdmin = null;
+            localStorage.removeItem('adminSession');
+            clearTimeout(sessionTimeout);
+            
+            adminPanel.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            
+            loginForm.reset();
+            showMessage('You have been logged out successfully!', 'success');
+        }
+
+        // Session timeout
+        function resetSessionTimeout() {
+            clearTimeout(sessionTimeout);
+            sessionTimeout = setTimeout(() => {
+                showMessage('Session expired. Please login again.', 'error');
+                logout();
+            }, 60 * 60 * 1000); // 1 hour
+        }
+
+        // Show message function
+        function showMessage(message, type) {
+            loginMessage.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => {
+                loginMessage.innerHTML = '';
+            }, 5000);
+        }
+
+        // Render users
+        function renderUsers(searchTerm = '') {
+            userList.innerHTML = '';
+            
+            const filteredUsers = users.filter(user => 
+                user.userKey.toLowerCase().includes(searchTerm) ||
+                user.deviceId.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredUsers.length === 0) {
+                userList.innerHTML = '<div class="user-card">No users found</div>';
+                return;
+            }
+            
+            filteredUsers.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <div class="user-info-panel">
+                        <div><strong>User Key:</strong> ${user.userKey}</div>
+                        <div><strong>Device ID:</strong> ${user.deviceId}</div>
+                        <div><strong>Expiry:</strong> ${user.expiryDate}</div>
+                        <div><strong>Status:</strong> 
+                            <span class="status-${user.status}">${user.status.toUpperCase()}</span>
+                        </div>
+                        <div><strong>Created By:</strong> ${user.createdBy}</div>
+                        <div><strong>Created:</strong> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-edit" onclick="editUser(${user.id})">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                    </div>
+                `;
+                userList.appendChild(userCard);
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            totalUsers.textContent = users.length;
+            activeUsers.textContent = users.filter(user => user.status === 'active').length;
+            
+            const today = new Date().toISOString().split('T')[0];
+            expiredUsers.textContent = users.filter(user => user.expiryDate < today).length;
+        }
+
+        // Edit user
+        function editUser(userId) {
+            if (!currentAdmin) {
+                showMessage('Please login first!', 'error');
+                return;
+            }
+
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                document.getElementById('userKey').value = user.userKey;
+                document.getElementById('deviceId').value = user.deviceId;
+                document.getElementById('expiryDate').value = user.expiryDate;
+                document.getElementById('status').value = user.status;
+                
+                // Remove user from list
+                users = users.filter(u => u.id !== userId);
+                renderUsers();
+                updateStats();
+                
+                showMessage('User loaded for editing!', 'success');
+            }
+        }
+
+        // Delete user
+        function deleteUser(userId) {
+            if (!currentAdmin) {
+                showMessage('Please login first!', 'error');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this user?')) {
+                users = users.filter(user => user.id !== userId);
+                renderUsers();
+                updateStats();
+                showMessage('User deleted successfully!', 'success');
+            }
+        }
+
+        // Reset session timeout on user activity
+        document.addEventListener('mousemove', resetSessionTimeout);
+        document.addEventListener('keypress', resetSessionTimeout);
+    </script>
+</body>
+</html>
